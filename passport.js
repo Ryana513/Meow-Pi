@@ -1,3 +1,4 @@
+
 const passport = require("passport");
 const User = require("./models/user");
 const JwtStrategy = require("passport-jwt").Strategy;
@@ -13,26 +14,26 @@ const localLogin = new LocalStrategy(localOptions, function(
   done
 ) {
   //Verify this email and password, call done aka callback
-  User.findOne({ email: email }),
-    function(err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, false);
-      }
-    };
-  // compare passwords = is 'password' equal to user.password? meow?
-  User.comparePassword(password, function(err, isMatch) {
+  User.findOne({ email: email }, function(err, user) {
     if (err) {
       return done(err);
     }
-    if (!isMatch) {
+    if (!user) {
       return done(null, false);
     }
 
-    //you are who you say you are!
-    return done(null, user);
+    // compare passwords = is 'password' equal to user.password? meow?
+    user.comparePassword(password, function(err, isMatch) {
+      if (err) {
+        return done(err);
+      }
+      if (!isMatch) {
+        return done(null, false);
+      }
+
+      //you are who you say you are!
+      return done(null, user);
+    });
   });
 });
 
